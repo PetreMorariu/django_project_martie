@@ -4,17 +4,18 @@ from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Book, Pizza
 from .serializers import BookSerializer, HWDataSerializer, PizzaSerializer
 from rest_framework import viewsets
-from rest_framework.response import Response
+
 
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-
+    permission_classes = [IsAuthenticated]
 
 class BookCustomViewSet(viewsets.ViewSet):
 
@@ -115,7 +116,7 @@ books = ["1984", "To Kill a Mockingbird", "The Great Gatsby", "Moby-Dick", "Prid
 def home(request):
     # return HttpResponse(content)
     # return redirect("https://google.com/")
-    return render(request, 'main.html', {
+    return render(request, 'home.html', {
         "content": content
     })
 
@@ -158,22 +159,6 @@ def get_books(request: HttpRequest):
             return HttpResponse(json.dumps(books[id]), status=200)
         else:
             return HttpResponse("Wrong ID given!", status=400)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
