@@ -11,6 +11,9 @@ from .models import Book, Pizza
 from .serializers import BookSerializer, HWDataSerializer, PizzaSerializer
 from rest_framework import viewsets
 
+from .utils import create_book_detail
+
+
 @login_required
 def my_books(request):
     books = request.user.books.all()
@@ -24,6 +27,11 @@ def add_book(request):
             book = form.save(commit=False)
             book.created_by = request.user
             book.save()
+
+            #here we create a BookDetails entry for this book
+            create_book_detail(book)
+
+
             return HttpResponse("Book added succesfully!")
     else:
         form = BookForm()
@@ -101,7 +109,8 @@ class PizzaCustomViewSet(viewsets.ViewSet):
     def create(self, request):
         serializer = PizzaSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            book = serializer.save()
+            create_book_detail(book)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response({"error":"Pizza not found!"}, status=status.HTTP_404_NOT_FOUND)
